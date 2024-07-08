@@ -6,7 +6,7 @@ from app.core.config import settings
 FORMAT = "%Y/%m/%d %H:%M:%S"
 
 SPREADSHEET_BODY = {
-    'properties': {'title': f'Отчёт на {datetime.now().strftime(FORMAT)}',
+    'properties': {'title': '',
                    'locale': 'ru_RU'},
     'sheets': [{'properties': {'sheetType': 'GRID',
                                'sheetId': 0,
@@ -22,7 +22,7 @@ PERMISSIONS_BODY = {
 }
 
 TABLE_VALUES = [
-    ['Отчёт от', datetime.now().strftime(FORMAT)],
+    ['Отчёт от', ''],
     ['Топ проектов по скорости закрытия'],
     ['Название проекта', 'Время сбора', 'Описание']
 ]
@@ -34,6 +34,9 @@ UPDATE_BODY = {
 
 
 async def spreadsheets_create(wrapper_services: Aiogoogle) -> str:
+    SPREADSHEET_BODY['properties']['title'] = (
+        f'Отчёт на {datetime.now().strftime(FORMAT)}'
+    )
     service = await wrapper_services.discover('sheets', 'v4')
 
     response = await wrapper_services.as_service_account(
@@ -63,6 +66,8 @@ async def spreadsheets_update_value(
         wrapper_services: Aiogoogle
 ) -> None:
     service = await wrapper_services.discover('sheets', 'v4')
+
+    TABLE_VALUES[0][1] = datetime.now().strftime(FORMAT)
 
     for project in all_close_projects:
         new_row = [
